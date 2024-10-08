@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class Swipe : MonoBehaviour
@@ -14,10 +15,14 @@ public class Swipe : MonoBehaviour
     public float buffer = 0.1f;
 
     private float currentBuffer;
+
+    private LineRenderer lineRenderer;
     // Start is called before the first frame update
     void Start()
     {
         currentBuffer = 0;
+
+        lineRenderer = GetComponent<LineRenderer>();
     }
 
     // Update is called once per frame
@@ -44,8 +49,10 @@ public class Swipe : MonoBehaviour
                 prevPosition = currentPosition;
                 currentBuffer = 0;
             }
-            
-            Debug.DrawLine(new Vector3(prevPosition.x, prevPosition.y, 0), new Vector3(currentPosition.x, currentPosition.y, 0));
+
+            lineRenderer.SetPosition(0, new Vector3(prevPosition.x, prevPosition.y, 0));
+            lineRenderer.SetPosition(1, new Vector3(currentPosition.x, currentPosition.y, 0));
+
            
         }
         
