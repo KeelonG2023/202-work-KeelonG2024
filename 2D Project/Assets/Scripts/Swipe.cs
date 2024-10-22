@@ -1,10 +1,14 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 
 public class Swipe : MonoBehaviour
 {
+    public FruitNinjaGameManagerButtonless gameManager;
+
     private Vector3 prevPosition;
     private Vector3 currentPosition;
 
@@ -17,6 +21,7 @@ public class Swipe : MonoBehaviour
     private float currentBuffer;
 
     private LineRenderer lineRenderer;
+    private RaycastHit2D hit;
     // Start is called before the first frame update
     void Start()
     {
@@ -41,9 +46,10 @@ public class Swipe : MonoBehaviour
         currentPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         currentBuffer += Time.deltaTime;
 
-        if (swipeActive)
-        {
+        currentPosition = new Vector3(currentPosition.x, currentPosition.y, 0);
 
+        if (swipeActive)
+        {        
             if (currentBuffer >= buffer) 
             {
                 prevPosition = currentPosition;
@@ -52,8 +58,25 @@ public class Swipe : MonoBehaviour
 
             lineRenderer.SetPosition(0, new Vector3(prevPosition.x, prevPosition.y, 0));
             lineRenderer.SetPosition(1, new Vector3(currentPosition.x, currentPosition.y, 0));
+            if (hit = Physics2D.Linecast(prevPosition, currentPosition))
+            {
+                print((currentPosition - prevPosition).magnitude);
 
-           
+                if ((currentPosition - prevPosition).magnitude > 0.4)
+                {
+                    if (hit.collider.gameObject.GetComponent<FruitScriptButtonless>().isbomb)
+                    {
+                        gameManager.ToggleGame(false);
+                    }
+                    else
+                    {
+                        gameManager.AddToScore(1);
+                        gameManager.Remove(hit.collider.gameObject);
+                        Destroy(hit.collider.gameObject);
+                    }
+                }
+
+            }
         }
         
     }
