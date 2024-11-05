@@ -25,6 +25,12 @@ public class CarDrive : MonoBehaviour
     // Fields for Quaternions
     public Quaternion turning;
 
+    //Terrain
+    public Terrain terrain;
+
+    public Camera maincamera;
+
+    public GameObject campos;
 
     // Start is called before the first frame update
     void Start()
@@ -117,6 +123,24 @@ public class CarDrive : MonoBehaviour
         Vector3 nextPosition = transform.position +
         (velocity * Time.fixedDeltaTime);
 
+        //use GetHeight to get the expected Y of the next position
+        RaycastHit hit;
+
+
+        Ray ray = new Ray(new Vector3(nextPosition.x, terrain.terrainData.size.y, nextPosition.z), new Vector3(0, -1, 0));
+
+        if(Physics.Raycast(ray, out hit, Mathf.Infinity))
+        {
+            nextPosition.y = hit.point.y; // allign car w/ ground
+        }
+       
+        nextRotation = Quaternion.Lerp(nextRotation, Quaternion.FromToRotation(transform.up, hit.normal) * nextRotation, 0.5f);
+
+        Vector3 newpos = new Vector3(campos.transform.position.x, nextPosition.y + 5, campos.transform.position.z);
+
+        maincamera.transform.position = Vector3.Lerp(maincamera.transform.position, newpos, 0.5f);
+        
+        maincamera.transform.localEulerAngles = new Vector3(20, transform.localEulerAngles.y, 0);
 
         //  Move and Rotate the Vehicle
         rBody.Move(nextPosition, nextRotation);
