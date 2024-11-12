@@ -111,7 +111,7 @@ public class CarDrive : MonoBehaviour
     {
         //  Calc current turning
         turning = Quaternion.Euler(0f,
-        movementDirection.x * turnSpeed * Time.fixedDeltaTime, 0f);
+        (movementDirection.x * Input.GetAxisRaw("Vertical")) * turnSpeed * Time.fixedDeltaTime, 0f);
 
         //  Calc current Turning
         Quaternion nextRotation = transform.rotation * turning;
