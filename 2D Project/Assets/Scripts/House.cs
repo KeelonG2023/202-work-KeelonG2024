@@ -9,6 +9,7 @@ public class House : Entity
     private TMP_Text text;
     public int storedFruits;
     public List<GameObject> occupants;
+    public int currentSlots;
     public bool checkForFood = false;
     public int maxOccupancy = 4;
     public Game gm;
@@ -22,17 +23,19 @@ public class House : Entity
         parent = gameObject;
         attraction = 0;
         text = GetComponent<TMP_Text>();
+
+        UpdateText();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        UpdateText();
     }
 
     public void UpdateText()
     {
-        text.text = $"Occupants: {occupants.Count}/{maxOccupancy} \n Stored Fruit: {storedFruits}";
+        text.text = $"Occupants: {occupants.Count} of {currentSlots}/{maxOccupancy} \n Stored Fruit: {storedFruits}";
     }
 
     public void EnterHome(GameObject occupant)
@@ -53,32 +56,22 @@ public class House : Entity
             {
                 gm.KillEntity(occupants[0].GetComponent<Humanoid>());
                 occupants.RemoveAt(0);
+                currentSlots--;
             }
+
             if (occupants.Count > 0)
             {
                 storedFruits -= foodReqCount;
 
                 if (storedFruits >= childCost && occupants.Count < maxOccupancy)
                 {
-                    for (int i = 0; i < Mathf.Floor(foodReqCount / storedFruits); ++i)
+
+                    float children = Mathf.Floor(storedFruits/ childCost);
+                    for (int i = 0; i < (int)children; ++i)
                     {
-                        if (occupants.Count < maxOccupancy)
+                        if (occupants.Count < maxOccupancy && storedFruits >= childCost)
                         {
-                            GameObject child = Instantiate(gm.humanObject);
-
-                            child.SetActive(false);
-                            child.transform.position = transform.position;
-                            occupants.Add(child);
-
-                            Humanoid ch = child.GetComponent<Humanoid>();
-
-                            ch.gm = gm;
-                            ch.home = this.gameObject;
-
-                            gm.entities.Add(ch);
-                            gm.humanoids.Add(child);
-
-                            storedFruits -= childCost;
+                            gm.NewHumanoid(gameObject);
                         }
                     }
 

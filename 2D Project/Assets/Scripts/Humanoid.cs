@@ -1,8 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using TreeEditor;
-using Unity.VisualScripting;
-using UnityEditor.Animations;
 using UnityEngine;
 
 public class Humanoid : Entity
@@ -20,8 +15,8 @@ public class Humanoid : Entity
     public GameObject target;
     public Vector3 randomWander;
 
-    public float maxSpeed = 5;
-    public float maxRange = 5;
+    public float maxSpeed;
+    public float maxRange;
     public float seekScalar = 1.0f;
     public int fruits;
 
@@ -41,6 +36,11 @@ public class Humanoid : Entity
     // Update is called once per frame
     void Update()
     {
+        
+
+    }
+    private void FixedUpdate()
+    {
         // Calculate a new Steering force vector
         steeringForce = CalcSteering();
 
@@ -50,14 +50,11 @@ public class Humanoid : Entity
         // Limit how Acceleration
         velocity += acceleration * Time.deltaTime;
 
-        // Update Velocity with current Acceleration
         velocity += acceleration * Time.deltaTime;
 
-        // Use Velocity the same as in Vehicle
 
-    }
-    private void FixedUpdate()
-    {
+        velocity = Vector3.ClampMagnitude(velocity, maxSpeed);
+
         //  Use velocity to calc next position
         nextPosition = transform.position + (velocity * Time.fixedDeltaTime);
 
@@ -81,10 +78,20 @@ public class Humanoid : Entity
         rBody.MovePosition(nextPosition);
         //transform.rotation = Quaternion.RotateTowards(transform.rotation, transform.rotation * nextRotation, 1f);
         rBody.MoveRotation(nextRotation);
+        GetComponent<LineRenderer>().SetPosition(0, transform.position); 
 
-        velocity = Vector3.zero;
+        if (target)
+        {
+            GetComponent<LineRenderer>().SetPosition(1, target.transform.position);
+        }
+        else
+        {
+            GetComponent<LineRenderer>().SetPosition(1, randomWander);
+        }
         
+
     }
+
 
     public Vector3 Seek(Vector3 targetPos)
     {
@@ -148,8 +155,16 @@ public class Humanoid : Entity
                 }
 
             }
+            if (target)
+            {
+                return Seek(target) * seekScalar;
+            }
+            else
+            {
+                randomWander = new Vector3(Random.Range(-gm.bounds.x, gm.bounds.x), Random.Range(-gm.bounds.y, gm.bounds.y));
+                return Seek(randomWander);
+            }
             
-            return Seek(target) * seekScalar;
         }
         else
         {
@@ -202,5 +217,7 @@ public class Humanoid : Entity
         target = null;
     }
 
+
+    
 
 }

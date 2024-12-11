@@ -26,40 +26,19 @@ public class Game : MonoBehaviour
     public Vector2 bounds;
 
     public GameObject nightShade;
+
+    public bool paths;
     // Start is called before the first frame update
     void Start()
     {
         for (int i = 0; i < houseAmount; i++) 
         {
-            GameObject newHouse = Instantiate(houseObject);
-
-            newHouse.transform.position = new Vector3(Random.Range(-bounds.x, bounds.x), Random.Range(-bounds.y, bounds.y));
-
-            entities.Add(newHouse.GetComponent<House>());
-            newHouse.GetComponent<House>().gm = this;
-            houses.Add(newHouse);
-
-            for (int j = 0; j < 2; j++)
-            {
-                GameObject newHuman = Instantiate(humanObject);
-                newHuman.GetComponent<Humanoid>().gm = this;
-                newHuman.GetComponent<Humanoid>().home = newHouse;
-
-                newHuman.transform.position = newHouse.transform.position;
-
-                entities.Add(newHuman.GetComponent<Humanoid>());
-                humanoids.Add(newHuman);
-            }
+            NewHouse(new Vector3(Random.Range(-bounds.x, bounds.x), Random.Range(-bounds.y, bounds.y)), true);
         }
 
         for (int i = 0; i < treeAmount; i++)
         {
-            GameObject newTree = Instantiate(treeObject);
-
-            newTree.transform.position = new Vector3(Random.Range(-bounds.x, bounds.x), Random.Range(-bounds.y, bounds.y));
-
-            entities.Add(newTree.GetComponent<Tree>());
-            trees.Add(newTree);
+            NewTree(new Vector3(Random.Range(-bounds.x, bounds.x), Random.Range(-bounds.y, bounds.y)));
         }
 
         phasetimer = dayTime;
@@ -118,9 +97,9 @@ public class Game : MonoBehaviour
                 {
                     Tree t = tree.GetComponent<Tree>();
 
-                    if (Random.Range(1, 4) < 4)
+                    if (Random.Range(1, 4) < 4 && t.fruits < 1)
                     {
-                        t.fruits++;
+                        t.fruits = 1;
                     }
                 }
 
@@ -194,5 +173,89 @@ public class Game : MonoBehaviour
         Destroy(entity.gameObject);
     }
 
+    public void NewHumanoid(Vector3 pos)
+    {
+        GameObject newHuman = Instantiate(humanObject);
+        newHuman.GetComponent<Humanoid>().gm = this;
+        newHuman.GetComponent<Humanoid>().home = FindNearestAvailibleHouse(pos);
+        newHuman.GetComponent<Humanoid>().home.GetComponent<House>().currentSlots++;
+        
+        newHuman.transform.position = pos;
+
+        entities.Add(newHuman.GetComponent<Humanoid>());
+        humanoids.Add(newHuman);
+    }
+
+    public void NewHumanoid(GameObject home)
+    {
+        GameObject newHuman = Instantiate(humanObject);
+        newHuman.GetComponent<Humanoid>().gm = this;
+        newHuman.GetComponent<Humanoid>().home = home;
+        newHuman.GetComponent<Humanoid>().home.GetComponent<House>().currentSlots++;
+        
+        newHuman.transform.position = home.transform.position;
+
+        entities.Add(newHuman.GetComponent<Humanoid>());
+        humanoids.Add(newHuman);
+    }
+
+    public void NewTree(Vector3 pos)
+    {
+        GameObject newTree = Instantiate(treeObject);
+
+        newTree.transform.position = new Vector3(pos.x,pos.y);
+
+        entities.Add(newTree.GetComponent<Tree>());
+        trees.Add(newTree);
+    }
+
+    public void NewHouse(Vector3 pos, bool addChildren)
+    {
+        GameObject newHouse = Instantiate(houseObject);
+
+        newHouse.transform.position = pos;
+
+        entities.Add(newHouse.GetComponent<House>());
+        newHouse.GetComponent<House>().gm = this;
+        houses.Add(newHouse);
+
+        if (addChildren) 
+        { 
+            for (int i = 0; i < 2; i++)
+            {
+                NewHumanoid(newHouse);
+            }
+        
+        }
+    }
+
+    public GameObject FindNearestAvailibleHouse(Vector3 pos)
+    {
+        float distancetoBeat = Mathf.Infinity;
+        GameObject nearestHouse = houses[0];
+        foreach(GameObject h in houses) 
+        {
+            float mag = (h.transform.position - pos).magnitude;
+            House hou = h.GetComponent<House>();
+            if (mag < distancetoBeat && hou.currentSlots < hou.maxOccupancy)
+            {
+                nearestHouse = h;
+                distancetoBeat = mag;
+            }
+        }
+        return nearestHouse;
+    }
+
+    public void TogglePaths()
+    {
+        paths = !paths;
+
+        foreach (GameObject h in humanoids)
+        {
+            LineRenderer hum = h.GetComponent<LineRenderer>();
+
+            hum.enabled = paths;
+        }
+    }
 }
 

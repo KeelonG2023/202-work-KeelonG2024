@@ -20,7 +20,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Exercise 6.unity
     guid: 579d0bd18b2a4ec419aeafecc780492f
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Project 02.unity
     guid: 7b94ab0bc59f6ce41b0d99cc66314a16
+  - enabled: 1
+    path: Assets/Scenes/Project 04.unity
+    guid: e376491623854af4db65ce7e52c3e812
   m_configObjects: {}

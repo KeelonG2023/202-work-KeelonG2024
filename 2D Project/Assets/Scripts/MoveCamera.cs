@@ -51,5 +51,26 @@ public class MoveCamera : MonoBehaviour
             Mathf.Clamp(transform.position.x, -manager.bounds.x, manager.bounds.x),
             Mathf.Clamp(transform.position.y, -manager.bounds.y, manager.bounds.y),
             transform.position.z);
+
+        Vector3 mousePos = gameObject.GetComponent<Camera>().ScreenToWorldPoint(Input.mousePosition);
+        mousePos.z = 0;
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            manager.NewTree(mousePos);
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            manager.NewHouse(mousePos, false);
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            manager.NewHumanoid(mousePos);
+        }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            manager.TogglePaths();
+        }
+
     }
 }
