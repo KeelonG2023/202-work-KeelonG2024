@@ -4,5 +4,7 @@ using UnityEngine;
 
 public abstract class Entity : MonoBehaviour
 {
-    protected float attraction;
+    public float attraction = 1;
+    public float effectdistance = 1;
+    public GameObject parent;
 }
